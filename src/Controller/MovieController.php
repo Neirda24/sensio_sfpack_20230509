@@ -28,7 +28,7 @@ class MovieController extends AbstractController
     public function details(string $movieSlug): Response
     {
         return $this->render('movie/details.html.twig', [
-            'movie' => MovieRepository::getBySlug($movieSlug)
+            'movie' => MovieRepository::getBySlug($movieSlug),
         ]);
     }
 }
