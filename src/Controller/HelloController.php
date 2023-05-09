@@ -18,7 +18,7 @@ class HelloController extends AbstractController
         ],
         methods: ['GET']
     )]
-    public function index(?string $name = 'Adrien'): Response
+    public function index(string|null $name = 'Adrien'): Response
     {
         return new Response(
             content: <<<"HTML"
