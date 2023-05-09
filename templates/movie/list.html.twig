@@ -12,7 +12,7 @@
                         <div class="card shadow-sm">
 {#                            {% set moviePoster = movie.remotePoster ? movie.poster : asset('build/images/movies/' ~ movie.poster) %}#}
 
-{#                            <img src="{{ moviePoster }}" alt="Poster of {{ movie.title }}">#}
+                            <img src="{{ asset('images/movies/' ~ movie.poster) }}" alt="Poster of {{ movie.title }}">
 
                             <div class="card-body">
                                 <p class="card-text">
@@ -21,7 +21,7 @@
                                     {% endfor %}
                                 <h3>{{ movie.title|title }}</h3>{{ movie.plot|slice(0, 300) }}...
                                 </p>
-                                <a href="/movies/2017-le-sens-de-la-fete">Voir plus</a>
+                                <a href="{{ path('app_movies_details', {'movieSlug': movie.slug}) }}">Voir plus</a>
                                 <div class="d-flex justify-content-between align-items-center">
                                     {#                                <div class="btn-group"> #}
                                     {#                                    <button type="button" class="btn btn-sm btn-outline-secondary">View</button> #}

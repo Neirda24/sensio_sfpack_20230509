@@ -17,6 +17,7 @@ final readonly class Movie
         public string            $plot,
         public array             $genres,
         public string            $slug,
+        public string            $poster,
     ) {
     }
 
