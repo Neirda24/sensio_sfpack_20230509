@@ -22,7 +22,7 @@ class HelloController extends AbstractController
     {
         return new Response(
             content: <<<"HTML"
-            Hello {$name} !
+            <body>Hello {$name} !</body>
             HTML
         );
     }
