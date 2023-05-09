@@ -8,7 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class HelloController extends AbstractController
 {
-    private const REQUIREMENT_NAME_REGEX = '\w+';
+    private const REQUIREMENT_NAME_REGEX = '\w+(-\w+)*';
 
     #[Route(
         '/hello/{name}',
