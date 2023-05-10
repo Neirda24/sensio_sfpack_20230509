@@ -6,18 +6,18 @@ namespace App\Model;
 
 use DateTimeImmutable;
 
-final readonly class Movie
+final class Movie
 {
     /**
      * @param list<string> $genres
      */
     public function __construct(
-        public string            $title,
-        public DateTimeImmutable $releasedAt,
-        public string            $plot,
-        public array             $genres,
-        public string            $slug,
-        public string            $poster,
+        public readonly string            $title,
+        public readonly DateTimeImmutable $releasedAt,
+        public readonly string            $plot,
+        public readonly array             $genres,
+        public readonly string            $slug,
+        public readonly string            $poster,
     ) {
     }
 
