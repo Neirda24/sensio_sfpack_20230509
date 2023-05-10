@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title is_editing is same as(true) ? 'Editing a movie' : 'Add a new movie !' %}
+
+{% block main %}
+    <div class="row g-5 py-5">
+        <div class="col-md-7 col-lg-8">
+            <h4 class="mb-3">{{ is_editing is same as(true) ? 'Edit a movie' : 'Add a movie' }}</h4>
+            {{ form_start(new_or_edit_movie_form) }}
+            {{ form_widget(new_or_edit_movie_form) }}
+            <hr class="my-4" />
+            <button class="w-100 btn btn-primary btn-lg" type="submit">{{ is_editing is same as(true) ? 'Edit this movie' : 'Add this movie' }}</button>
+            {{ form_end(new_or_edit_movie_form) }}
+        </div>
+    </div>
+{% endblock main %}

@@ -29,14 +29,10 @@
                                     {% for genre in movie.genres %}
                                         <span class="badge bg-dark">{{ genre }}</span>
                                     {% endfor %}
-                                <h3>{{ movie.title|title }}</h3>{{ movie.plot|slice(0, 300) }}...
+                                <h3><a href="{{ path('app_movies_edit', {'movieSlug': movie.slug}) }}"><i class="fa fa-edit"></i></a>{{ movie.title|title }}</h3>{{ movie.plot|slice(0, 300) }}...
                                 </p>
                                 <a href="{{ path('app_movies_details', {'movieSlug': movie.slug}) }}">Voir plus</a>
                                 <div class="d-flex justify-content-between align-items-center">
-                                    {#                                <div class="btn-group"> #}
-                                    {#                                    <button type="button" class="btn btn-sm btn-outline-secondary">View</button> #}
-                                    {#                                    <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button> #}
-                                    {#                                </div> #}
                                     <small class="text-muted">{{ movie.year }}</small>
                                 </div>
                             </div>

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Movie as MovieEntity;
 use App\Form\MovieType;
 use App\Model\Movie;
 use App\Repository\MovieRepository;
@@ -11,6 +12,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class MovieController extends AbstractController
 {
+    private const ROUTE_SLUG_REQUIREMENT = '\d{4}-\w+(-\w+)*';
+
     #[Route('/movies', name: 'app_movies_list', methods: ['GET'])]
     public function list(MovieRepository $movieRepository): Response
     {
@@ -26,7 +29,7 @@ class MovieController extends AbstractController
         '/movies/{movieSlug}',
         name: 'app_movies_details',
         requirements: [
-            'movieSlug' => '\d{4}-\w+(-\w+)*',
+            'movieSlug' => self::ROUTE_SLUG_REQUIREMENT,
         ],
         methods: ['GET']
     )]
@@ -42,12 +45,27 @@ class MovieController extends AbstractController
         name: 'app_movies_new',
         methods: ['GET']
     )]
-    public function new(): Response
+    #[Route(
+        '/movies/{movieSlug}/edit',
+        name: 'app_movies_edit',
+        requirements: [
+            'movieSlug' => self::ROUTE_SLUG_REQUIREMENT,
+        ],
+        methods: ['GET']
+    )]
+    public function newOrEdit(MovieRepository $movieRepository, string|null $movieSlug = null): Response
     {
-        $form = $this->createForm(MovieType::class);
+        $movie = new MovieEntity();
 
-        return $this->render('movie/new.html.twig', [
-            'new_movie_form' => $form,
+        if (null !== $movieSlug) {
+            $movie = $movieRepository->getBySlug($movieSlug);
+        }
+
+        $form = $this->createForm(MovieType::class, $movie);
+
+        return $this->render('movie/new_or_edit.html.twig', [
+            'new_or_edit_movie_form' => $form,
+            'is_editing' => null !== $movieSlug,
         ]);
     }
 }
