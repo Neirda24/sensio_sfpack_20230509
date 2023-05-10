@@ -47,7 +47,7 @@ class MovieRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('movie');
 
         $qb
-            ->innerJoin('movie.genres', 'genre')
+            ->leftJoin('movie.genres', 'genre')
             ->addSelect('genre')
         ;
 
