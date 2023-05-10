@@ -13,8 +13,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class MovieController extends AbstractController
 {
-    private const ROUTE_SLUG_REQUIREMENT = '\d{4}-\w+(-\w+)*';
-
     #[Route('/movies', name: 'app_movies_list', methods: ['GET'])]
     public function list(MovieRepository $movieRepository): Response
     {
@@ -27,7 +25,7 @@ class MovieController extends AbstractController
         '/movies/{movieSlug}',
         name: 'app_movies_details',
         requirements: [
-            'movieSlug' => self::ROUTE_SLUG_REQUIREMENT,
+            'movieSlug' => MovieEntity::SLUG_PATTERN,
         ],
         methods: ['GET']
     )]
@@ -47,7 +45,7 @@ class MovieController extends AbstractController
         '/movies/{movieSlug}/edit',
         name: 'app_movies_edit',
         requirements: [
-            'movieSlug' => self::ROUTE_SLUG_REQUIREMENT,
+            'movieSlug' => MovieEntity::SLUG_PATTERN,
         ],
         methods: ['GET', 'POST']
     )]
