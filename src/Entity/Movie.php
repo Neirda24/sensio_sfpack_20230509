@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\MovieRepository;
+use App\Validator\Constraints\Poster;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -41,6 +42,7 @@ class Movie
 
     #[NotNull]
     #[Length(min: 5)]
+    #[Poster()]
     #[ORM\Column(length: 255)]
     private ?string $poster = null;
 
