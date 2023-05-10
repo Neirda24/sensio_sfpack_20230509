@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\MovieRepository;
+use App\Validator\Constraints\MovieSlug;
 use App\Validator\Constraints\Poster;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,7 +13,6 @@ use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotNull;
-use Symfony\Component\Validator\Constraints\Regex;
 
 #[ORM\Entity(repositoryClass: MovieRepository::class)]
 class Movie
@@ -30,8 +30,7 @@ class Movie
     private ?string $title = null;
 
     #[NotNull]
-    #[Length(min: 6, max: 255)]
-    #[Regex('#'.self::SLUG_PATTERN.'#')]
+    #[MovieSlug]
     #[ORM\Column(length: 255)]
     private ?string $slug = null;
 
