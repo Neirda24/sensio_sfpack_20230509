@@ -7,6 +7,7 @@ use App\Form\MovieType;
 use App\Model\Movie;
 use App\Repository\MovieRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -17,11 +18,8 @@ class MovieController extends AbstractController
     #[Route('/movies', name: 'app_movies_list', methods: ['GET'])]
     public function list(MovieRepository $movieRepository): Response
     {
-        $form = $this->createForm(MovieType::class);
-
         return $this->render('movie/list.html.twig', [
             'movies' => Movie::fromEntities($movieRepository->list()),
-            'new_movie_form' => $form,
         ]);
     }
 
@@ -43,7 +41,7 @@ class MovieController extends AbstractController
     #[Route(
         '/movies/new',
         name: 'app_movies_new',
-        methods: ['GET']
+        methods: ['GET', 'POST']
     )]
     #[Route(
         '/movies/{movieSlug}/edit',
@@ -51,9 +49,9 @@ class MovieController extends AbstractController
         requirements: [
             'movieSlug' => self::ROUTE_SLUG_REQUIREMENT,
         ],
-        methods: ['GET']
+        methods: ['GET', 'POST']
     )]
-    public function newOrEdit(MovieRepository $movieRepository, string|null $movieSlug = null): Response
+    public function newOrEdit(MovieRepository $movieRepository, Request $request, string|null $movieSlug = null): Response
     {
         $movie = new MovieEntity();
 
@@ -62,6 +60,13 @@ class MovieController extends AbstractController
         }
 
         $form = $this->createForm(MovieType::class, $movie);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $movieRepository->save($movie, true);
+
+            return $this->redirectToRoute('app_movies_details', ['movieSlug' => $movie->getSlug()]);
+        }
 
         return $this->render('movie/new_or_edit.html.twig', [
             'new_or_edit_movie_form' => $form,
