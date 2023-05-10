@@ -9,7 +9,7 @@ use LogicException;
 use function array_column;
 use function array_map;
 
-final readonly class MovieRepository
+final class MovieRepository
 {
     /**
      * @var list<array{title: string, releasedAt: string, plot: string, genres: list<string>, poster: string}>
