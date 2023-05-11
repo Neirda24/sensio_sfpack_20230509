@@ -2,9 +2,10 @@ Requirements
 ============
 
 1. [symfony-cli](https://symfony.com/download)
-2. pdo_sqlite
-3. composer
-4. yarn
+2. PHP >= 8.1
+3. pdo_sqlite
+4. composer
+5. yarn
 
 Install
 =======
