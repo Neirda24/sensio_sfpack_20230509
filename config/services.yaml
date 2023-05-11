@@ -16,9 +16,19 @@ services:
     App\:
         resource: '../src/'
         exclude:
+            - '../src/DataFixtures/'
             - '../src/DependencyInjection/'
             - '../src/Entity/'
+            - '../src/Model/'
+            - '../src/Omdb/Api/'
+            - '../src/Validator/Constraints/'
             - '../src/Kernel.php'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Omdb\Api\OmdbApiClient: ~
+    App\Omdb\Api\OmdbApiClientInterface: '@App\Omdb\Api\OmdbApiClient'
+
+    App\Validator\Constraints\:
+        resource: '../src/Validator/Constraints/**/*Validator.php'
