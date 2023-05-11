@@ -2,13 +2,24 @@
 
 namespace App\Command;
 
+use App\Entity\Movie;
+use App\Omdb\Api\NoResult;
+use App\Omdb\Api\OmdbApiClientInterface;
+use App\Omdb\Api\SearchResult;
+use App\Omdb\Bridge\OmdbToDatabaseImporterInterface;
+use App\Repository\MovieRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function array_key_first;
+use function array_reduce;
+use function count;
+use function sprintf;
 
 #[AsCommand(
     name: 'omdb:movie:import',
@@ -16,10 +27,18 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class OmdbMovieImportCommand extends Command
 {
+    public function __construct(
+        private readonly MovieRepository $movieRepository,
+        private readonly OmdbApiClientInterface $omdbApiClient,
+        private readonly OmdbToDatabaseImporterInterface $omdbToDatabaseImporter,
+    ) {
+        parent::__construct(null);
+    }
+
     protected function configure(): void
     {
         $this
-            ->addArgument('ir-or-title', InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'Can either be a valid IMDB ID or a Title to search for.')
+            ->addArgument('id-or-title', InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'Can either be a valid IMDB ID or a Title to search for.')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Won\'t import movies to database. Only display summary of actions.')
             ->setHelp(<<<'EOT'
             The <info>%command.name%</info> import movies data from OMDB API to database :
@@ -40,18 +59,110 @@ class OmdbMovieImportCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $arg1 = $input->getArgument('arg1');
 
-        if ($arg1) {
-            $io->note(sprintf('You passed an argument: %s', $arg1));
+        $io->title('OMDN Import');
+
+        /** @var list<string> $idOrTitleList */
+        $idOrTitleList = $input->getArgument('id-or-title');
+        $io->note(sprintf('Trying to import %d movies.', count($idOrTitleList)));
+
+        /** @var array{string, Movie} $moviesImported */
+        $moviesImported = [];
+
+        /** @var list<string> $moviesFailed */
+        $moviesFailed = [];
+
+        foreach ($idOrTitleList as $idOrTitle) {
+            $movie = $this->import($io, $idOrTitle);
+
+            if (null === $movie) {
+                $moviesFailed[] = $idOrTitle;
+                continue;
+            }
+
+            $moviesImported[] = [$idOrTitle, $movie];
         }
 
-        if ($input->getOption('option1')) {
-            // ...
+        $isDryRun = $input->getOption('dry-run');
+        if (false === $isDryRun) {
+            $this->movieRepository->flush();
         }
 
-        $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
+        if (count($moviesImported) > 0) {
+            $io->success('These were imported :');
+            $io->table(
+                ['ID', 'Search Query', 'Title'],
+                array_reduce($moviesImported, static function (array $rows, array $movieImported): array {
+                    /** @var Movie $movie */
+                    [$idOrTitle, $movie] = $movieImported;
+
+                    $rows[] = [$movie->getId(), $idOrTitle, "{$movie->getTitle()} ({$movie->getReleasedAt()->format('Y')})"];
+
+                    return $rows;
+                }, [])
+            );
+        }
+
+        if (count($moviesFailed) > 0) {
+            $io->error('Those search terms could not be found or were skipped.');
+            $io->listing($moviesFailed);
+        }
 
         return Command::SUCCESS;
+    }
+
+    private function import(SymfonyStyle $io, string $idOrTitle): Movie|null
+    {
+        $io->section("'{$idOrTitle}'");
+
+        return $this->tryImportAsImdbId($io, $idOrTitle) ?? $this->searchAndImportByTitle($io, $idOrTitle);
+    }
+
+    private function tryImportAsImdbId(SymfonyStyle $io, string $imdbId): Movie|null
+    {
+        try {
+            $result = $this->omdbApiClient->getById($imdbId);
+        } catch (NoResult) {
+            return null;
+        }
+
+        $acceptImport = $io->askQuestion(new ConfirmationQuestion("Do you wish to import '{$result->Title} ({$result->Year})' ?", true));
+
+        if (false === $acceptImport) {
+            $io->warning('   >>> Skipping');
+            return null;
+        }
+
+        return $this->omdbToDatabaseImporter->importFromApiData($result);
+    }
+
+    private function searchAndImportByTitle(SymfonyStyle $io, string $title): Movie|null
+    {
+        try {
+            $searchResults = $this->omdbApiClient->searchByTitle($title);
+        } catch (NoResult) {
+            return null;
+        }
+
+        $choices = array_reduce($searchResults, static function (array $choices, SearchResult $searchResult): array {
+            $choices[$searchResult->imdbId] = "{$searchResult->Title} ({$searchResult->Year})";
+
+            return $choices;
+        }, []);
+
+        if (count($choices) === 1) {
+            $selectedChoice = array_key_first($choices);
+            $io->info("'{$selectedChoice} - {$choices[$selectedChoice]}' is the only result. Selecting.");
+        } else {
+            $choices['none'] = 'None of the above.';
+            $selectedChoice = $io->choice('Which movie would you like to import ?', $choices);
+
+            if ('none' === $selectedChoice) {
+                $io->warning('   >>> Skipping');
+                return null;
+            }
+        }
+
+        return $this->tryImportAsImdbId($io, $selectedChoice);
     }
 }
