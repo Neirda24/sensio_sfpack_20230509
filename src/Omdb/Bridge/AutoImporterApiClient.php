@@ -11,6 +11,7 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 final class AutoImporterApiClient implements OmdbApiClientInterface
 {
     public function __construct(
+        private readonly AutoImporterApiClientConfig $config,
         private readonly OmdbApiClientInterface $omdbApiClient,
         private readonly OmdbToDatabaseImporterInterface $omdbToDatabaseImporter,
     ) {
@@ -20,9 +21,11 @@ final class AutoImporterApiClient implements OmdbApiClientInterface
     {
         $movie = $this->omdbApiClient->getById($imdbId);
 
-        try {
-            $this->omdbToDatabaseImporter->importFromApiData($movie, true);
-        } catch (UniqueConstraintViolationException) {
+        if ($this->config->getValue() === true) {
+            try {
+                $this->omdbToDatabaseImporter->importFromApiData($movie, true);
+            } catch (UniqueConstraintViolationException) {
+            }
         }
 
         return $movie;
