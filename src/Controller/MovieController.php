@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use function dump;
 
 class MovieController extends AbstractController
 {
@@ -54,6 +55,7 @@ class MovieController extends AbstractController
     )]
     public function detailsFromOmdb(string $imdbId): Response
     {
+//        dd($this->omdbApiClient::class);
         return $this->render('movie/details.html.twig', [
             'movie' => Movie::fromOmdb($this->omdbApiClient->getById($imdbId)),
         ]);

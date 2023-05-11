@@ -30,5 +30,8 @@ services:
     App\Omdb\Api\OmdbApiClient: ~
     App\Omdb\Api\OmdbApiClientInterface: '@App\Omdb\Api\OmdbApiClient'
 
+    App\Omdb\Bridge\AutoImporterApiClient:
+        decorates: 'App\Omdb\Api\OmdbApiClientInterface'
+
     App\Validator\Constraints\:
         resource: '../src/Validator/Constraints/**/*Validator.php'
