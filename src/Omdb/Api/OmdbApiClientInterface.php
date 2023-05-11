@@ -7,12 +7,14 @@ namespace App\Omdb\Api;
 interface OmdbApiClientInterface
 {
     /**
-     * @throws NoResult When the IMDB ID was not found
+     * @throws NoResult When the $imdbId was not found
      */
     public function getById(string $imdbId): Movie;
 
     /**
      * @return list<SearchResult>
+     *
+     * @throws NoResult When the $title was not found
      */
     public function searchByTitle(string $title): array;
 }
