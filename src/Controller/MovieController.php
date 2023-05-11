@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Entity\Movie as MovieEntity;
 use App\Form\MovieType;
 use App\Model\Movie;
-use App\Omdb\Api\OmdbApiClient;
+use App\Omdb\Api\OmdbApiClientInterface;
 use App\Repository\MovieRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class MovieController extends AbstractController
 {
     public function __construct(
-        private readonly OmdbApiClient $omdbApiClient
+        private readonly OmdbApiClientInterface $omdbApiClient
     )
     {
     }

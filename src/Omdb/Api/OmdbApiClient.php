@@ -8,7 +8,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
 use function array_key_exists;
 
-final class OmdbApiClient
+final class OmdbApiClient implements OmdbApiClientInterface
 {
     public function __construct(
         private readonly HttpClientInterface $omdbApiClient,
