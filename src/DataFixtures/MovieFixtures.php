@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Movie;
+use App\Model\Rated;
 use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -11,7 +12,7 @@ use Doctrine\Persistence\ObjectManager;
 class MovieFixtures extends Fixture implements DependentFixtureInterface
 {
     /**
-     * @var list<array{title: string, releasedAt: string, plot: string, genres: list<string>, poster: string}>
+     * @var list<array{title: string, releasedAt: string, plot: string, genres: list<string>, poster: string, rated: Rated}>
      */
     private const MOVIES = [
         [
@@ -23,6 +24,7 @@ class MovieFixtures extends Fixture implements DependentFixtureInterface
                 EOT,
             'genres' => ['Comédie', 'Famille'],
             'poster' => '2017-le-sens-de-la-fete.webp',
+            'rated' => Rated::GeneralAudiences,
         ],
     ];
 
@@ -42,6 +44,7 @@ class MovieFixtures extends Fixture implements DependentFixtureInterface
                 ->setPlot($rawMovie['plot'])
                 ->setPoster($rawMovie['poster'])
                 ->setReleasedAt(DateTimeImmutable::createFromFormat('!Y/m/d', $rawMovie['releasedAt']))
+                ->setRated($rawMovie['rated'])
             ;
 
             foreach ($rawMovie['genres'] as $genreName) {
