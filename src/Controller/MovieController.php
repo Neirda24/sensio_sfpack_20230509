@@ -77,7 +77,7 @@ class MovieController extends AbstractController
         $movie = new MovieEntity();
 
         if (null !== $movieSlug) {
-            $movie = clone $this->movieRepository->getBySlug($movieSlug);
+            $movie = $this->movieRepository->getBySlug($movieSlug);
         }
 
         $form = $this->createForm(MovieType::class, $movie);

@@ -11,7 +11,6 @@ use App\Repository\GenreRepository;
 use App\Repository\MovieRepository;
 use DateTimeImmutable;
 use function explode;
-use function urlencode;
 
 final class OmdbToDatabaseImporter implements OmdbToDatabaseImporterInterface
 {
@@ -29,7 +28,6 @@ final class OmdbToDatabaseImporter implements OmdbToDatabaseImporterInterface
             ->setRated(Rated::tryFrom($movie->Rated) ?? Rated::GeneralAudiences)
             ->setPlot($movie->Plot)
             ->setReleasedAt(new DateTimeImmutable($movie->Released))
-            ->setSlug(sprintf("%s-%s", $movie->Year, urlencode($movie->Title)))
         ;
 
         foreach (explode(', ', $movie->Genre) as $genreName) {

@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Movie;
 use App\Model\Rated;
+use App\Repository\MovieRepository;
 use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -16,7 +17,6 @@ class MovieFixtures extends Fixture implements DependentFixtureInterface
      */
     private const MOVIES = [
         [
-            'slug' => '2017-le-sens-de-la-fete',
             'title' => 'Le sens de la fête',
             'releasedAt' => '2017/10/04',
             'plot' => <<<'EOT'
@@ -27,6 +27,11 @@ class MovieFixtures extends Fixture implements DependentFixtureInterface
             'rated' => Rated::GeneralAudiences,
         ],
     ];
+
+    public function __construct(
+        private readonly MovieRepository $movieRepository,
+    ) {
+    }
 
     public function getDependencies(): array
     {
@@ -40,7 +45,6 @@ class MovieFixtures extends Fixture implements DependentFixtureInterface
         foreach (self::MOVIES as $rawMovie) {
             $movie = (new Movie())
                 ->setTitle($rawMovie['title'])
-                ->setSlug($rawMovie['slug'])
                 ->setPlot($rawMovie['plot'])
                 ->setPoster($rawMovie['poster'])
                 ->setReleasedAt(DateTimeImmutable::createFromFormat('!Y/m/d', $rawMovie['releasedAt']))
@@ -52,9 +56,9 @@ class MovieFixtures extends Fixture implements DependentFixtureInterface
                 $movie->addGenre($genre);
             }
 
-            $manager->persist($movie);
+            $this->movieRepository->save($movie, false);
         }
 
-        $manager->flush();
+        $this->movieRepository->flush();
     }
 }

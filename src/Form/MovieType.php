@@ -18,7 +18,6 @@ class MovieType extends AbstractType
     {
         $builder
             ->add('title')
-            ->add('slug')
             ->add('plot')
             ->add('poster')
             ->add('rated', EnumType::class, [

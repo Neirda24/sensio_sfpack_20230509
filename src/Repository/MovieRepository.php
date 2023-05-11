@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Movie;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 /**
  * @extends ServiceEntityRepository<Movie>
@@ -16,7 +17,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class MovieRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private readonly SluggerInterface $slugger)
     {
         parent::__construct($registry, Movie::class);
     }
@@ -24,6 +25,10 @@ class MovieRepository extends ServiceEntityRepository
     public function save(Movie $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
+
+        $entity->setSlug(
+            $entity->getSlug() ?? $this->slugger->slug($entity->getSluggable())->toString()
+        );
 
         if ($flush) {
             $this->getEntityManager()->flush();

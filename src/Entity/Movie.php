@@ -15,6 +15,7 @@ use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotNull;
+use function strtolower;
 
 #[ORM\Entity(repositoryClass: MovieRepository::class)]
 #[UniqueConstraint(name: 'movie_slug', columns: ['slug'])]
@@ -82,6 +83,11 @@ class Movie
         $this->title = $title;
 
         return $this;
+    }
+
+    public function getSluggable(): string
+    {
+        return strtolower("{$this->getReleasedAt()->format('Y')} - {$this->getTitle()}");
     }
 
     public function getSlug(): ?string
