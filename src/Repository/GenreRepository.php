@@ -63,4 +63,19 @@ class GenreRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+    public function get(string $genreName): Genre
+    {
+        $genre = $this->findOneBy([
+            'name' => $genreName
+        ]);
+
+        if (null === $genre) {
+            $genre = (new Genre())->setName($genreName);
+
+            $this->save($genre, false);
+        }
+
+        return $genre;
+    }
 }
