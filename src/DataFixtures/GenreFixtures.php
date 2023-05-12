@@ -12,8 +12,14 @@ class GenreFixtures extends Fixture
      * @var list<string>
      */
     private const GENRES = [
+        'Action',
+        'Adventure',
         'Comédie',
+        'Comedy',
+        'Documentary',
         'Famille',
+        'Family',
+        'Fantasy',
     ];
 
     public function load(ObjectManager $manager): void

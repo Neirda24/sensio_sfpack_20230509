@@ -112,4 +112,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    public function isOlderThanOrEqual(int $age, \DateTimeImmutable $now): bool
+    {
+        $dateOfBirth = $this->getBirthdate();
+
+        if (null === $dateOfBirth) {
+            return false;
+        }
+
+        return $now->diff($dateOfBirth)->y >= $age;
+    }
 }

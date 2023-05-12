@@ -24,6 +24,7 @@ final class Movie
         public readonly array             $genres,
         public readonly string            $slug,
         public readonly string            $poster,
+        public readonly Rated             $rated,
     ) {
     }
 
@@ -39,6 +40,7 @@ final class Movie
                         ),
             slug:       $movieEntity->getSlug(),
             poster:     $movieEntity->getPoster(),
+            rated:      $movieEntity->getRated(),
         );
     }
 
@@ -51,6 +53,7 @@ final class Movie
             genres:     explode(', ', $movieOmdb->Genre),
             slug:       $movieOmdb->Title,
             poster:     $movieOmdb->Poster,
+            rated:      Rated::tryFrom($movieOmdb->Rated) ?? Rated::GeneralAudiences,
         );
     }
 
