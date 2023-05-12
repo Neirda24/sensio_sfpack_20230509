@@ -3,24 +3,28 @@
 namespace App\Controller;
 
 use App\Entity\Movie as MovieEntity;
+use App\Entity\User;
+use App\Event\Security\UnderragedAccess;
 use App\Form\MovieType;
 use App\Model\Movie;
 use App\Omdb\Api\OmdbApiClientInterface;
 use App\Repository\MovieRepository;
 use App\Security\Voter\MovieVoter;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use function dump;
 
 class MovieController extends AbstractController
 {
     public function __construct(
         private readonly OmdbApiClientInterface $omdbApiClient,
+        private readonly ClockInterface $clock,
         private readonly MovieRepository $movieRepository,
-    )
-    {
+        private readonly EventDispatcherInterface $eventDispatcher,
+    ) {
     }
 
     #[Route('/movies', name: 'app_movies_list', methods: ['GET'])]
@@ -43,7 +47,21 @@ class MovieController extends AbstractController
     {
         $movie = Movie::fromEntity($this->movieRepository->getBySlug($movieSlug));
 
-        $this->denyAccessUnlessGranted(MovieVoter::VIEW_DETAILS, $movie);
+        if (!$this->isGranted(MovieVoter::VIEW_DETAILS, $movie)) {
+            /** @var User $user */
+            $user = $this->getUser();
+
+            if (!$user->isOlderThanOrEqual($movie->rated->minAgeRequired(), $this->clock->now())) {
+                $this->eventDispatcher->dispatch(
+                    new UnderragedAccess(
+                        $user,
+                        $movie,
+                    )
+                );
+            }
+
+            throw $this->createAccessDeniedException();
+        }
 
         return $this->render('movie/details.html.twig', [
             'movie' => $movie,
@@ -62,7 +80,21 @@ class MovieController extends AbstractController
     {
         $movie = Movie::fromOmdb($this->omdbApiClient->getById($imdbId));
 
-        $this->denyAccessUnlessGranted(MovieVoter::VIEW_DETAILS, $movie);
+        if (!$this->isGranted(MovieVoter::VIEW_DETAILS, $movie)) {
+            /** @var User $user */
+            $user = $this->getUser();
+
+            if (!$user->isOlderThanOrEqual($movie->rated->minAgeRequired(), $this->clock->now())) {
+                $this->eventDispatcher->dispatch(
+                    new UnderragedAccess(
+                        $user,
+                        $movie,
+                    )
+                );
+            }
+
+            throw $this->createAccessDeniedException();
+        }
 
         return $this->render('movie/details.html.twig', [
             'movie' => $movie,

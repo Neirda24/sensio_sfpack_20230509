@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -116,15 +117,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function isOlderThanOrEqual(int $age, \DateTimeImmutable $now): bool
+    public function getAge(DateTimeImmutable $now): int|null
     {
         $dateOfBirth = $this->getBirthdate();
 
         if (null === $dateOfBirth) {
+            return null;
+        }
+
+        return $now->diff($dateOfBirth)->y;
+    }
+
+    public function isOlderThanOrEqual(int $age, \DateTimeImmutable $now): bool
+    {
+        $userAge = $this->getAge($now);
+
+        if (null === $userAge) {
             return false;
         }
 
-        return $now->diff($dateOfBirth)->y >= $age;
+        return $userAge >= $age;
     }
 
     public function getLastLoggedIn(): ?\DateTimeImmutable
