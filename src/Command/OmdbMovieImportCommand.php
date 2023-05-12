@@ -32,7 +32,6 @@ class OmdbMovieImportCommand extends Command
         private readonly MovieRepository $movieRepository,
         private readonly OmdbApiClientInterface $omdbApiClient,
         private readonly OmdbToDatabaseImporterInterface $omdbToDatabaseImporter,
-        private readonly AutoImporterApiClientConfig $autoImporterApiClientConfig,
     ) {
         parent::__construct(null);
     }
@@ -60,7 +59,6 @@ class OmdbMovieImportCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->autoImporterApiClientConfig->skip();
         $io = new SymfonyStyle($input, $output);
 
         $io->title('OMDN Import');
@@ -90,8 +88,6 @@ class OmdbMovieImportCommand extends Command
         if (false === $isDryRun) {
             $this->movieRepository->flush();
         }
-
-        $this->autoImporterApiClientConfig->restore();
 
         if (count($moviesImported) > 0) {
             $io->success('These were imported :');
