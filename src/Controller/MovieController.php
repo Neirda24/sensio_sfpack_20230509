@@ -55,19 +55,18 @@ class MovieController extends AbstractController
     )]
     public function detailsFromOmdb(string $imdbId): Response
     {
-//        dd($this->omdbApiClient::class);
         return $this->render('movie/details.html.twig', [
             'movie' => Movie::fromOmdb($this->omdbApiClient->getById($imdbId)),
         ]);
     }
 
     #[Route(
-        '/movies/new',
+        '/admin/movies/new',
         name: 'app_movies_new',
         methods: ['GET', 'POST']
     )]
     #[Route(
-        '/movies/{movieSlug}/edit',
+        '/admin/movies/{movieSlug}/edit',
         name: 'app_movies_edit',
         requirements: [
             'movieSlug' => MovieEntity::SLUG_PATTERN,
